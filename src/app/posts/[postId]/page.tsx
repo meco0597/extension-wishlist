@@ -1,7 +1,11 @@
 import { Suspense } from 'react';
 import PostDetail from '@/components/PostDetail';
 
-export default function Page({ params }: { params: { postId: string } }) {
+interface PageProps {
+    params: { postId: string };
+}
+
+export default function Page({ params }: PageProps) {
     return (
         <Suspense fallback={<div>Loading...</div>}>
             <PostDetail postId={params.postId} />
