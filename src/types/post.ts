@@ -6,4 +6,5 @@ export interface Post {
     userId: string;
     source: string;
     hasVoted?: boolean;
+    createdAt: string;
 }

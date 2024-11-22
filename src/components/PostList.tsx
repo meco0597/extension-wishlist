@@ -1,7 +1,11 @@
+"use client";
+
 import PostItem from './PostItem';
+import { Button } from "@/components/ui/button";
+import { Post } from '@/types/post';
 
 interface PostListProps {
-    posts: any[];
+    posts: Post[];
     currentPage: number;
     setCurrentPage: (page: number) => void;
     totalPosts: number;
@@ -18,25 +22,27 @@ export default function PostList({
     const totalPages = Math.ceil(totalPosts / postsPerPage);
 
     return (
-        <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="space-y-8">
+            <div className="space-y-4">
                 {posts.map((post) => (
                     <PostItem key={post.id} post={post} />
                 ))}
             </div>
-            <div className="mt-6 flex justify-center">
-                <div className="btn-group">
+
+            {totalPages > 1 && (
+                <div className="flex justify-center gap-2">
                     {Array.from({ length: totalPages }).map((_, idx) => (
-                        <button
+                        <Button
                             key={idx}
+                            variant={currentPage === idx + 1 ? "default" : "outline"}
+                            size="sm"
                             onClick={() => setCurrentPage(idx + 1)}
-                            className={`btn ${currentPage === idx + 1 ? 'btn-active' : ''}`}
                         >
                             {idx + 1}
-                        </button>
+                        </Button>
                     ))}
                 </div>
-            </div>
-        </>
+            )}
+        </div>
     );
 }

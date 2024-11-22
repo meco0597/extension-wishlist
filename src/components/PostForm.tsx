@@ -1,7 +1,16 @@
-import React, { useState } from 'react';
-import { auth, db } from '../lib/firebase';
+"use client";
+
+import { useState } from 'react';
+import { auth, db } from '@/lib/firebase';
 import { addDoc, collection } from 'firebase/firestore';
 import { Post } from '@/types/post';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import SourceSelect from './SourceSelect';
 
 interface PostFormProps {
     isOpen: boolean;
@@ -12,18 +21,27 @@ export default function PostForm({ isOpen, setIsOpen }: PostFormProps) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [source, setSource] = useState('');
+    const { toast } = useToast();
 
     const handleCreatePost = async (e: React.FormEvent) => {
         e.preventDefault();
         const user = auth.currentUser;
 
         if (!user) {
-            alert('You need to be logged in to create a post.');
+            toast({
+                title: "Authentication required",
+                description: "You need to be logged in to create a post.",
+                variant: "destructive",
+            });
             return;
         }
 
         if (!title || !description || !source) {
-            alert('Please fill in all fields.');
+            toast({
+                title: "Validation Error",
+                description: "Please fill in all fields.",
+                variant: "destructive",
+            });
             return;
         }
 
@@ -31,62 +49,64 @@ export default function PostForm({ isOpen, setIsOpen }: PostFormProps) {
             const newPost: Omit<Post, 'id'> = {
                 title,
                 description,
-                source, // Include source field
+                source,
                 votes: 0,
                 userId: user.uid,
+                createdAt: new Date().toISOString(),
             };
+
             await addDoc(collection(db, 'posts'), newPost);
             setTitle('');
             setDescription('');
             setSource('');
             setIsOpen(false);
+
+            toast({
+                title: "Success",
+                description: "Your post has been created.",
+            });
         } catch (error) {
-            console.error('Error creating post:', error);
+            toast({
+                title: "Error",
+                description: "Failed to create post. Please try again.",
+                variant: "destructive",
+            });
         }
     };
 
     return (
-        <div className={`fixed inset-0 ${isOpen ? '' : 'hidden'} flex items-center justify-center bg-gray-900 bg-opacity-50 z-50`}>
-            <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-                <h3 className="text-2xl font-bold mb-4">Create a New Post</h3>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Create a New Post</DialogTitle>
+                </DialogHeader>
                 <form onSubmit={handleCreatePost} className="space-y-4">
-                    <input
-                        type="text"
-                        placeholder="Title"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="input input-bordered w-full"
-                    />
-                    <textarea
-                        placeholder="Description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        className="textarea textarea-bordered w-full"
-                    ></textarea>
-                    <select
-                        value={source}
-                        onChange={(e) => setSource(e.target.value)}
-                        className="select select-bordered w-full"
-                    >
-                        <option value="">Select Source</option>
-                        <option value="Webflow">Webflow</option>
-                        <option value="Shopify">Shopify</option>
-                        <option value="Azure">Azure</option>
-                    </select>
+                    <div className="space-y-2">
+                        <Input
+                            placeholder="Title"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <Textarea
+                            placeholder="Description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            className="min-h-[100px]"
+                        />
+                    </div>
+                    <div className="space-y-2">
+
+                    </div>
                     <div className="flex justify-end gap-2">
-                        <button
-                            type="button"
-                            onClick={() => setIsOpen(false)}
-                            className="btn btn-secondary"
-                        >
+                        <Button variant="outline" type="button" onClick={() => setIsOpen(false)}>
                             Cancel
-                        </button>
-                        <button type="submit" className="btn btn-primary">
-                            Submit
-                        </button>
+                        </Button>
+                        <Button type="submit">Submit</Button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 }

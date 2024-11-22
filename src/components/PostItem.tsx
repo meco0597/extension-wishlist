@@ -1,83 +1,110 @@
-import { TrashIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
-import { auth, db } from '../lib/firebase';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { auth, db } from '@/lib/firebase';
 import { addDoc, collection, deleteDoc, doc, getDocs, increment, query, updateDoc, where } from 'firebase/firestore';
 import { Post } from '@/types/post';
-import { useState } from 'react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ChevronUp, ExternalLink } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { formatDistanceToNow } from 'date-fns';
 
 interface PostItemProps {
     post: Post;
+    showFullContent?: boolean;
+    onVoteUpdate?: (updatedPost: Post) => void;
 }
 
-export default function PostItem({ post }: PostItemProps) {
-    const [hasVoted, setHasVoted] = useState<boolean>(post.hasVoted ? false : true);
+export default function PostItem({ post, showFullContent = false }: PostItemProps) {
+    const [hasVoted, setHasVoted] = useState<boolean>(post.hasVoted || false);
+    const [postState, setPost] = useState(post);
+    const { toast } = useToast();
+    const router = useRouter();
 
-    const handleVoteToggle = async (postId: string) => {
+    const handleVoteToggle = async (e: React.MouseEvent, postId: string) => {
+        e.stopPropagation();
         const user = auth.currentUser;
         if (!user) {
-            alert('You need to be logged in to vote.');
+            toast({
+                title: "Authentication required",
+                description: "You need to be logged in to vote.",
+                variant: "destructive",
+            });
             return;
         }
 
         const userId = user.uid;
         const voteRef = collection(db, `posts/${postId}/votes`);
         const userVoteQuery = query(voteRef, where('userId', '==', userId));
-        const querySnapshot = await getDocs(userVoteQuery);
 
         try {
+            const querySnapshot = await getDocs(userVoteQuery);
+            const postRef = doc(db, 'posts', postId);
+
             if (!querySnapshot.empty) {
+                const updatePost = { ...postState, votes: postState.votes - 1 };
+                setHasVoted(false);
+                setPost(updatePost);
                 const voteDoc = querySnapshot.docs[0];
                 await deleteDoc(doc(db, `posts/${postId}/votes`, voteDoc.id));
-                const postRef = doc(db, 'posts', postId);
                 await updateDoc(postRef, { votes: increment(-1) });
-                setHasVoted(false);
             } else {
-                await addDoc(voteRef, { userId, timestamp: new Date() });
-                const postRef = doc(db, 'posts', postId);
-                await updateDoc(postRef, { votes: increment(1) });
                 setHasVoted(true);
+                setPost({ ...postState, votes: postState.votes + 1 });
+                await addDoc(voteRef, { userId, timestamp: new Date() });
+                await updateDoc(postRef, { votes: increment(1) });
             }
         } catch (error) {
-            console.error('Error toggling vote:', error);
+            toast({
+                title: "Error",
+                description: "Failed to process vote. Please try again.",
+                variant: "destructive",
+            });
         }
     };
 
-    const handleDeletePost = async (postId: string) => {
-        if (!confirm('Are you sure you want to delete this post?')) return;
-
-        try {
-            await deleteDoc(doc(db, 'posts', postId));
-        } catch (error) {
-            console.error('Error deleting post:', error);
+    const handleCardClick = () => {
+        if (!showFullContent) {
+            router.push(`/posts/${post.id}`);
         }
     };
 
     return (
-        <div className="bg-white p-4 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold text-gray-800">{post.title}</h3>
-            <p className="text-gray-600 mt-2">{post.description}</p>
-            <div className="flex items-center justify-between mt-4">
-                <span className="text-gray-500 text-sm">Source: {post.source}</span>
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => handleVoteToggle(post.id)}
-                        className={`btn btn-sm flex items-center gap-2 ${hasVoted ? 'btn-success' : 'btn-outline'
-                            }`}
-                    >
-                        <ChevronUpIcon
-                            className={`h-5 w-5 ${hasVoted ? 'text-green-500' : 'text-gray-500'
-                                }`}
-                        />
-                        {hasVoted ? 'Unvote' : 'Upvote'}
-                    </button>
-                    <button
-                        onClick={() => handleDeletePost(post.id)}
-                        className="btn btn-error btn-sm flex items-center gap-2"
-                    >
-                        <TrashIcon className="h-5 w-5" />
-                        Delete
-                    </button>
+        <Card
+            className={`${!showFullContent ? 'cursor-pointer hover:shadow-lg transition-shadow' : ''}`}
+            onClick={handleCardClick}
+        >
+            <CardHeader>
+                <div className="flex justify-between items-start">
+                    <div>
+                        <CardTitle className="text-xl flex items-center gap-2">
+                            {post.title}
+                            {!showFullContent && <ExternalLink className="h-4 w-4 text-gray-400" />}
+                        </CardTitle>
+                        <p className="text-sm text-gray-500 mt-1">
+                            Posted {formatDistanceToNow(new Date(post.createdAt))} ago
+                        </p>
+                    </div>
+                    <Badge variant="secondary">{post.source}</Badge>
                 </div>
-            </div>
-        </div>
+            </CardHeader>
+            <CardContent>
+                <p className={`text-muted-foreground ${!showFullContent ? 'line-clamp-3' : ''}`}>
+                    {post.description}
+                </p>
+            </CardContent>
+            <CardFooter className="flex justify-between">
+                <Button
+                    variant={hasVoted ? "default" : "outline"}
+                    size="sm"
+                    onClick={(e) => handleVoteToggle(e, post.id)}
+                    className="gap-2"
+                >
+                    <ChevronUp className="h-4 w-4" />
+                    <span>{postState.votes}</span>
+                </Button>
+            </CardFooter>
+        </Card>
     );
 }
