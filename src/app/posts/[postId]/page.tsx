@@ -1,14 +1,14 @@
 import { Suspense } from 'react';
 import PostDetail from '@/components/PostDetail';
 
-interface PageProps {
-    params: { postId: string };
-}
-
-export default function Page({ params }: PageProps) {
+export default async function Page({ params,
+}: {
+    params: Promise<{ postId: string }>
+}) {
+    const postId = (await params).postId
     return (
         <Suspense fallback={<div>Loading...</div>}>
-            <PostDetail postId={params.postId} />
+            <PostDetail postId={postId} />
         </Suspense>
     );
 }

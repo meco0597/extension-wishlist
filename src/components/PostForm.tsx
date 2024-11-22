@@ -97,7 +97,7 @@ export default function PostForm({ isOpen, setIsOpen }: PostFormProps) {
                         />
                     </div>
                     <div className="space-y-2">
-
+                        <SourceSelect value={source} onValueChange={(value) => setSource(value)} />
                     </div>
                     <div className="flex justify-end gap-2">
                         <Button variant="outline" type="button" onClick={() => setIsOpen(false)}>

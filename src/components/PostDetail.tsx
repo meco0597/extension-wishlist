@@ -127,7 +127,7 @@ export default function PostDetail({ postId }: PostDetailProps) {
                     <div className="flex gap-2">
                         <Button
                             variant="outline"
-                            onClick={() => router.push(`/post/${post.id}/edit`)}
+                            onClick={() => router.push(`/posts/${post.id}/edit`)}
                             className="flex items-center gap-2"
                         >
                             <Edit className="h-4 w-4" />
