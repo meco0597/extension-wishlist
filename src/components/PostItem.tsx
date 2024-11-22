@@ -88,6 +88,15 @@ export default function PostItem({ post, showFullContent = false }: PostItemProp
                     </div>
                     <Badge variant="secondary">{post.source}</Badge>
                 </div>
+                {post.tags && post.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {post.tags.map((tag) => (
+                            <Badge key={tag} variant="outline">
+                                {tag}
+                            </Badge>
+                        ))}
+                    </div>
+                )}
             </CardHeader>
             <CardContent>
                 <p className={`text-muted-foreground ${!showFullContent ? 'line-clamp-3' : ''}`}>

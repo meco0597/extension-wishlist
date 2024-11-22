@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import SourceSelect from './SourceSelect';
+import TagSelect from './TagSelect';
 
 interface EditPostProps {
     postId: string;
@@ -23,6 +24,7 @@ export default function EditPost({ postId }: EditPostProps) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [source, setSource] = useState('');
+    const [tags, setTags] = useState<string[]>([]);
     const { toast } = useToast();
     const currentUser = auth.currentUser;
 
@@ -38,13 +40,14 @@ export default function EditPost({ postId }: EditPostProps) {
                     setTitle(postData.title);
                     setDescription(postData.description);
                     setSource(postData.source);
+                    setTags(postData.tags || []);
                 } else {
                     toast({
                         title: "Post not found",
                         description: "The requested post could not be found.",
                         variant: "destructive",
                     });
-                    router.push('/');
+                    router.push('/posts');
                 }
             } catch (error) {
                 toast({
@@ -88,6 +91,7 @@ export default function EditPost({ postId }: EditPostProps) {
                 title,
                 description,
                 source,
+                tags,
             });
 
             toast({
@@ -181,6 +185,13 @@ export default function EditPost({ postId }: EditPostProps) {
                         <SourceSelect value={source} onValueChange={setSource} />
                     </div>
 
+                    <div className="space-y-2">
+                        <label htmlFor="tags" className="text-sm font-medium text-gray-700">
+                            Tags
+                        </label>
+                        <TagSelect selectedTags={tags} onTagsChange={setTags} />
+                    </div>
+
                     <div className="flex justify-end gap-2">
                         <Button
                             type="button"
@@ -189,9 +200,7 @@ export default function EditPost({ postId }: EditPostProps) {
                         >
                             Cancel
                         </Button>
-                        <Button type="submit">
-                            Save Changes
-                        </Button>
+                        <Button type="submit">Save Changes</Button>
                     </div>
                 </form>
             </div>

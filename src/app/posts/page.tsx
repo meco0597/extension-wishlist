@@ -5,7 +5,7 @@ import { db } from '@/lib/firebase';
 import { collection, onSnapshot, where, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import FilterBar from '@/components/FilterBar';
 import PostList from '@/components/PostList';
-import PostForm from '@/components/PostForm';
+import TagSelect from '@/components/TagSelect'; // Import the TagSelect component
 import { Post } from '@/types/post';
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2 } from "lucide-react";
@@ -14,14 +14,15 @@ import { useToast } from "@/hooks/use-toast";
 import Link from 'next/link';
 import { auth } from '@/lib/firebase';
 import { fetchUserVotes } from '@/lib/voteUtils';
+import { SOFTWARE_TAGS } from "@/lib/constants"; // Import predefined tags
 
 export default function Wishlist() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
-    const [sortOrder, setSortOrder] = useState<'most' | 'least' | 'newest'>('newest');
+    const [sortOrder, setSortOrder] = useState<'most' | 'newest'>('newest');
     const [filterSource, setFilterSource] = useState('');
-    const [isModalOpen, setModalOpen] = useState(false);
+    const [selectedTags, setSelectedTags] = useState<string[]>([]); // State to track selected tags
     const { toast } = useToast();
     const postsPerPage = 9;
 
@@ -84,14 +85,13 @@ export default function Wishlist() {
     }, [toast]);
 
     const filteredPosts = posts.filter((post) =>
-        filterSource === "All" || filterSource === "" ? true : post.source === filterSource
+        (filterSource === "All" || filterSource === "" ? true : post.source === filterSource) &&
+        (selectedTags.length === 0 ? true : selectedTags.some((tag) => post.tags?.includes(tag)))
     );
 
     const sortedPosts = [...filteredPosts].sort((a, b) => {
         if (sortOrder === 'most') {
             return b.votes - a.votes;
-        } else if (sortOrder === 'least') {
-            return a.votes - b.votes;
         } else if (sortOrder === 'newest') {
             return (b.createdAt > a.createdAt) ? 1 : -1;
         }
@@ -109,9 +109,11 @@ export default function Wishlist() {
                 <div className="container mx-auto px-4 py-6">
                     <div className="flex items-center justify-between">
                         <Link href="/"><h1 className="text-3xl font-bold tracking-tight">Wishlist</h1></Link>
-                        <Button onClick={() => setModalOpen(true)}>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Add Post
+                        <Button asChild>
+                            <Link href="/posts/new" className="flex items-center gap-2">
+                                <Plus className="h-4 w-4" />
+                                Add Post
+                            </Link>
                         </Button>
                     </div>
                 </div>
@@ -122,6 +124,8 @@ export default function Wishlist() {
                     setFilterSource={setFilterSource}
                     sortOrder={sortOrder}
                     setSortOrder={setSortOrder}
+                    filterTags={selectedTags}
+                    setFilterTags={setSelectedTags}
                 />
                 {loading ? (
                     <div className="flex items-center justify-center py-12">
@@ -133,11 +137,13 @@ export default function Wishlist() {
                         <p className="text-muted-foreground mt-2">Be the first to create a post!</p>
                         <Button
                             variant="outline"
-                            onClick={() => setModalOpen(true)}
+                            asChild
                             className="mt-4"
                         >
-                            <Plus className="mr-2 h-4 w-4" />
-                            Create Post
+                            <Link href="/posts/new" className="flex items-center gap-2">
+                                <Plus className="h-4 w-4" />
+                                Create Post
+                            </Link>
                         </Button>
                     </div>
                 ) : (
@@ -150,10 +156,6 @@ export default function Wishlist() {
                     />
                 )}
             </main>
-            <PostForm
-                isOpen={isModalOpen}
-                setIsOpen={setModalOpen}
-            />
             <Toaster />
         </div>
     );
