@@ -1,7 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getAnalytics } from 'firebase/analytics';
-import { getAuth } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getAuth, connectAuthEmulator } from 'firebase/auth';
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -17,3 +16,9 @@ const app = initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
 export const auth = getAuth(app);
+
+if (process.env.NODE_ENV === 'development') {
+    console.log('Running in development mode. Connecting to emulators...');
+    connectFirestoreEmulator(db, '127.0.0.1', 8080);
+    connectAuthEmulator(auth, "http://127.0.0.1:9099", { disableWarnings: true });
+}

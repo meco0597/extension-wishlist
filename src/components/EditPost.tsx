@@ -86,6 +86,24 @@ export default function EditPost({ postId }: EditPostProps) {
             return;
         }
 
+        if (title.length > 200) {
+            toast({
+                title: "Validation Error",
+                description: "Title cannot exceed 200 characters.",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        if (description.length > 1000) {
+            toast({
+                title: "Validation Error",
+                description: "Description cannot exceed 1000 characters.",
+                variant: "destructive",
+            });
+            return;
+        }
+
         try {
             await updateDoc(doc(db, 'posts', postId), {
                 title,
@@ -163,6 +181,7 @@ export default function EditPost({ postId }: EditPostProps) {
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Enter title"
                         />
+                        <p className="text-sm text-gray-500">{200 - title.length} characters left</p>
                     </div>
 
                     <div className="space-y-2">
@@ -176,6 +195,7 @@ export default function EditPost({ postId }: EditPostProps) {
                             placeholder="Enter description"
                             className="min-h-[150px]"
                         />
+                        <p className="text-sm text-gray-500">{1000 - description.length} characters left</p>
                     </div>
 
                     <div className="space-y-2">

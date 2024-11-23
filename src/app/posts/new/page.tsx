@@ -95,6 +95,7 @@ export default function NewPost() {
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Enter title"
                         />
+                        <p className="text-sm text-gray-500">{200 - title.length} characters left</p>
                     </div>
 
                     <div className="space-y-2">
@@ -108,6 +109,7 @@ export default function NewPost() {
                             placeholder="Enter description"
                             className="min-h-[150px]"
                         />
+                        <p className="text-sm text-gray-500">{1000 - description.length} characters left</p>
                     </div>
 
                     <div className="space-y-2">

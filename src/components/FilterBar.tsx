@@ -21,7 +21,7 @@ export default function FilterBar({
     setFilterTags
 }: FilterBarProps) {
     return (
-        <div className="flex gap-4 mb-6 max-w-3xl">
+        <div className="flex gap-4 mb-6 sm:flex-row max-w-3xl">
             <Select value={filterSource} onValueChange={setFilterSource}>
                 <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Filter by source" />

@@ -49,7 +49,7 @@ export function MultiSelect({
                 <div
                     role="combobox"
                     aria-expanded={open}
-                    className={`flex items-center gap-1 border rounded-md px-3 py-2 h-10 cursor-pointer bg-background hover:bg-accent hover:text-accent-foreground overflow-x-auto ${className}`}
+                    className={`flex items-center gap-1 border rounded-md px-3 py-2 h-9 cursor-pointer bg-background hover:bg-accent hover:text-accent-foreground overflow-x-auto ${className}`}
                 >
                     <div className="flex items-center gap-1 flex-nowrap">
                         {selectedOptions.length === 0 && (
