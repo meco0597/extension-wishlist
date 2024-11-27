@@ -5,9 +5,7 @@ import { Post } from '@/types/post';
 import { verifyAuth } from '../../auth';
 
 type Props = {
-    params: {
-        postId: string
-    }
+    params: Promise<{ postId: string }>
 }
 
 export async function GET(
@@ -15,7 +13,7 @@ export async function GET(
     { params }: Props
 ) {
     return verifyAuth(req, async () => {
-        const postId = params.postId;
+        const postId = (await params).postId;
         const userId = req.headers.get('user-id');
 
         console.log('Post ID for GET:', postId);
@@ -53,7 +51,7 @@ export async function PUT(
     { params }: Props
 ) {
     return verifyAuth(req, async () => {
-        const postId = params.postId;
+        const postId = (await params).postId;
         const { title, description, platform, categories, userId } = await req.json();
 
         if (!title || !description || !platform) {
