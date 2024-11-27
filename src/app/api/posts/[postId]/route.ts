@@ -4,9 +4,12 @@ import { getDoc, doc, updateDoc, getDocs, collection, query, where } from 'fireb
 import { Post } from '@/types/post';
 import { verifyAuth } from '../../auth';
 
-export async function GET(req: NextRequest, { params }: { params: { postId: string } }) {
+export async function GET(
+    req: NextRequest,
+    context: { params: { postId: string } }
+) {
     return verifyAuth(req, async () => {
-        const postId = params.postId;
+        const postId = context.params.postId;
         const userId = req.headers.get('user-id');
 
         console.log('Post ID for GET:', postId);
@@ -39,9 +42,12 @@ export async function GET(req: NextRequest, { params }: { params: { postId: stri
     });
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { postId: string } }) {
+export async function PUT(
+    req: NextRequest,
+    context: { params: { postId: string } }
+) {
     return verifyAuth(req, async () => {
-        const postId = params.postId;
+        const postId = context.params.postId;
         const { title, description, platform, categories, userId } = await req.json();
 
         if (!title || !description || !platform) {
