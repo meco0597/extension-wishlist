@@ -26,6 +26,11 @@ if (!getApps().length) {
     }, config.firebaseAppName);
 }
 
+// Add this type declaration
+interface AuthenticatedRequest extends NextRequest {
+    user: admin.auth.DecodedIdToken;
+}
+
 export async function verifyAuth(req: NextRequest, next: Function) {
     const authHeader = req.headers.get('Authorization');
 
@@ -37,7 +42,7 @@ export async function verifyAuth(req: NextRequest, next: Function) {
 
     try {
         const decodedToken = await getAuth(getApp(config.firebaseAppName)).verifyIdToken(token);
-        (req as any).user = decodedToken;
+        (req as AuthenticatedRequest).user = decodedToken;
 
         // Add user ID to the request headers
         const requestHeaders = new Headers(req.headers);

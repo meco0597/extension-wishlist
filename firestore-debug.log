@@ -2819,3 +2819,5 @@ Nov 24, 2024 11:07:37 PM com.google.cloud.datastore.emulator.firestore.websocket
 INFO: Connected to new websocket client
 Nov 24, 2024 11:39:43 PM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketChannelHandler channelClosed
 INFO: Websocket client disconnected
+*** shutting down gRPC server since JVM is shutting down
+*** server shut down
