@@ -10,8 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import SourceSelect from './SourceSelect';
-import TagSelect from './TagSelect';
+import PlatformSelect from './PlatformSelect';
+import CategorySelect from './CategorySelect';
 
 interface EditPostProps {
     postId: string;
@@ -23,15 +23,15 @@ export default function EditPost({ postId }: EditPostProps) {
     const [loading, setLoading] = useState(true);
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [source, setSource] = useState('');
-    const [tags, setTags] = useState<string[]>([]);
+    const [platform, setPlatform] = useState('');
+    const [categories, setCategories] = useState<string[]>([]);
     const { toast } = useToast();
     const currentUser = auth.currentUser;
 
+    // Replace Firestore calls with API calls
     useEffect(() => {
         const fetchPost = async () => {
             if (!postId) return;
-
             try {
                 const postDoc = await getDoc(doc(db, 'posts', postId));
                 if (postDoc.exists()) {
@@ -39,8 +39,8 @@ export default function EditPost({ postId }: EditPostProps) {
                     setPost(postData);
                     setTitle(postData.title);
                     setDescription(postData.description);
-                    setSource(postData.source);
-                    setTags(postData.tags || []);
+                    setPlatform(postData.platform);
+                    setCategories(postData.categories || []);
                 } else {
                     toast({
                         title: "Post not found",
@@ -55,19 +55,17 @@ export default function EditPost({ postId }: EditPostProps) {
                     description: "Failed to load post details.",
                     variant: "destructive",
                 });
+                router.push('/posts');
             } finally {
                 setLoading(false);
             }
         };
-
         fetchPost();
     }, [postId, router, toast]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
         if (!post || !currentUser) return;
-
         if (currentUser.uid !== post.userId) {
             toast({
                 title: "Unauthorized",
@@ -76,8 +74,7 @@ export default function EditPost({ postId }: EditPostProps) {
             });
             return;
         }
-
-        if (!title || !description || !source) {
+        if (!title || !description || !platform) {
             toast({
                 title: "Validation Error",
                 description: "Please fill in all fields.",
@@ -85,31 +82,20 @@ export default function EditPost({ postId }: EditPostProps) {
             });
             return;
         }
-
-        if (title.length > 200) {
+        if (title.length > 200 || description.length > 1000) {
             toast({
                 title: "Validation Error",
-                description: "Title cannot exceed 200 characters.",
+                description: "Exceeded character limit.",
                 variant: "destructive",
             });
             return;
         }
-
-        if (description.length > 1000) {
-            toast({
-                title: "Validation Error",
-                description: "Description cannot exceed 1000 characters.",
-                variant: "destructive",
-            });
-            return;
-        }
-
         try {
             await updateDoc(doc(db, 'posts', postId), {
                 title,
                 description,
-                source,
-                tags,
+                platform,
+                categories,
             });
 
             toast({
@@ -199,17 +185,17 @@ export default function EditPost({ postId }: EditPostProps) {
                     </div>
 
                     <div className="space-y-2">
-                        <label htmlFor="source" className="text-sm font-medium text-gray-700">
-                            Source
+                        <label htmlFor="platform" className="text-sm font-medium text-gray-700">
+                            Platform
                         </label>
-                        <SourceSelect value={source} onValueChange={setSource} />
+                        <PlatformSelect value={platform} onValueChange={setPlatform} />
                     </div>
 
                     <div className="space-y-2">
-                        <label htmlFor="tags" className="text-sm font-medium text-gray-700">
-                            Tags
+                        <label htmlFor="categories" className="text-sm font-medium text-gray-700">
+                            Categories
                         </label>
-                        <TagSelect selectedTags={tags} onTagsChange={setTags} />
+                        <CategorySelect selectedCategories={categories} onCategoriesChange={setCategories} />
                     </div>
 
                     <div className="flex justify-end gap-2">

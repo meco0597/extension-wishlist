@@ -52,6 +52,7 @@ export default function PostDetail({ postId }: PostDetailProps) {
                     description: "Failed to load post details.",
                     variant: "destructive",
                 });
+                router.push('/posts');
             } finally {
                 setLoading(false);
             }

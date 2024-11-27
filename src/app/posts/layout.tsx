@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -14,6 +15,7 @@ export default function RootLayout({
   return (
     <ProtectedRoute>
       {children}
+      <Toaster />
     </ProtectedRoute>
   );
 }

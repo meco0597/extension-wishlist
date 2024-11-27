@@ -30,8 +30,8 @@ export default function Home() {
       {/* Header Section */}
       <header className="border-b backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">
-            Wishlist Aggregator
+          <h1 className="text-3xl font-bold tracking-tight">
+            Software Wishlist
           </h1>
           {!user ? (
             <Button onClick={signInWithGoogle} variant="outline">

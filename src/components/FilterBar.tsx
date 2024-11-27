@@ -1,38 +1,28 @@
 "use client";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import TagSelect from "./TagSelect";
+import CategorySelect from "./CategorySelect";
+import PlatformMultiSelect from "./PlatformMultiSelect";
 
 interface FilterBarProps {
-    filterSource: string;
-    setFilterSource: (source: string) => void;
+    filterPlatforms: string[];
+    setFilterPlatform: (platform: string[]) => void;
     sortOrder: 'most' | 'newest';
     setSortOrder: (order: 'most' | 'newest') => void;
-    filterTags: string[];
-    setFilterTags: (tags: string[]) => void;
+    filterCategories: string[];
+    setFilterCategories: (categories: string[]) => void;
 }
 
 export default function FilterBar({
-    filterSource,
-    setFilterSource,
+    filterPlatforms,
+    setFilterPlatform,
     sortOrder,
     setSortOrder,
-    filterTags,
-    setFilterTags
+    filterCategories,
+    setFilterCategories
 }: FilterBarProps) {
     return (
         <div className="flex gap-4 mb-6 sm:flex-row max-w-3xl">
-            <Select value={filterSource} onValueChange={setFilterSource}>
-                <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Filter by source" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value='All'>All Sources</SelectItem>
-                    <SelectItem value="Webflow">Webflow</SelectItem>
-                    <SelectItem value="Shopify">Shopify</SelectItem>
-                    <SelectItem value="Azure">Azure</SelectItem>
-                </SelectContent>
-            </Select>
 
             <Select value={sortOrder} onValueChange={(value) => setSortOrder(value as 'most' | 'newest')}>
                 <SelectTrigger className="w-[180px]">
@@ -44,11 +34,18 @@ export default function FilterBar({
                 </SelectContent>
             </Select>
 
-            <TagSelect
-                selectedTags={filterTags}
-                onTagsChange={setFilterTags}
-                placeholder="Filter by tags"
-                maxTags={4}
+            <PlatformMultiSelect
+                selectedPlatforms={filterPlatforms}
+                onPlatformsChange={setFilterPlatform}
+                placeholder="Filter by Platform"
+                maxPlatforms={4}
+            />
+
+            <CategorySelect
+                selectedCategories={filterCategories}
+                onCategoriesChange={setFilterCategories}
+                placeholder="Filter by categories"
+                maxCategories={4}
             />
         </div>
     );

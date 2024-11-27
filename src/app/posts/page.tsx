@@ -1,28 +1,25 @@
-'use client';
+'use client'
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, onSnapshot, where, query, orderBy, limit, getDocs } from 'firebase/firestore';
 import FilterBar from '@/components/FilterBar';
 import PostList from '@/components/PostList';
-import TagSelect from '@/components/TagSelect'; // Import the TagSelect component
 import { Post } from '@/types/post';
 import { Button } from "@/components/ui/button";
 import { Plus, Loader2 } from "lucide-react";
-import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
-import Link from 'next/link';
 import { auth } from '@/lib/firebase';
+import Link from 'next/link';
 import { fetchUserVotes } from '@/lib/voteUtils';
-import { SOFTWARE_TAGS } from "@/lib/constants"; // Import predefined tags
 
 export default function Wishlist() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortOrder, setSortOrder] = useState<'most' | 'newest'>('newest');
-    const [filterSource, setFilterSource] = useState('');
-    const [selectedTags, setSelectedTags] = useState<string[]>([]); // State to track selected tags
+    const [filterPlatform, setFilterPlatform] = useState<string[]>([]);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const { toast } = useToast();
     const postsPerPage = 9;
 
@@ -85,8 +82,8 @@ export default function Wishlist() {
     }, [toast]);
 
     const filteredPosts = posts.filter((post) =>
-        (filterSource === "All" || filterSource === "" ? true : post.source === filterSource) &&
-        (selectedTags.length === 0 ? true : selectedTags.some((tag) => post.tags?.includes(tag)))
+        (filterPlatform.length === 0 ? true : filterPlatform.some((platform) => post.platform === platform)) &&
+        (selectedCategories.length === 0 ? true : selectedCategories.some((category) => post.categories?.includes(category)))
     );
 
     const sortedPosts = [...filteredPosts].sort((a, b) => {
@@ -108,7 +105,7 @@ export default function Wishlist() {
             <header className="border-b backdrop-blur sticky top-0 z-50">
                 <div className="container mx-auto px-4 py-6">
                     <div className="flex items-center justify-between">
-                        <Link href="/"><h1 className="text-3xl font-bold tracking-tight">Wishlist</h1></Link>
+                        <Link href="/"><h1 className="text-6xl font-bold tracking-tight">Wishlist</h1></Link>
                         <Button asChild>
                             <Link href="/posts/new" className="flex items-center gap-2">
                                 <Plus className="h-4 w-4" />
@@ -120,12 +117,12 @@ export default function Wishlist() {
             </header>
             <main className="container mx-auto px-4 py-8">
                 <FilterBar
-                    filterSource={filterSource}
-                    setFilterSource={setFilterSource}
+                    filterPlatforms={filterPlatform}
+                    setFilterPlatform={setFilterPlatform}
                     sortOrder={sortOrder}
                     setSortOrder={setSortOrder}
-                    filterTags={selectedTags}
-                    setFilterTags={setSelectedTags}
+                    filterCategories={selectedCategories}
+                    setFilterCategories={setSelectedCategories}
                 />
                 {loading ? (
                     <div className="flex items-center justify-center py-12">
@@ -156,7 +153,6 @@ export default function Wishlist() {
                     />
                 )}
             </main>
-            <Toaster />
         </div>
     );
 }

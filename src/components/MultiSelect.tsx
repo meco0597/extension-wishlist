@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
     Command,
@@ -102,7 +102,7 @@ export function MultiSelect({
                                                 }`}
                                         >
                                             {isSelected && (
-                                                <X className="h-3 w-3 text-primary-foreground" />
+                                                <Check className="h-3 w-3 text-primary-foreground" />
                                             )}
                                         </div>
                                         {option.label}

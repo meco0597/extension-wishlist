@@ -20,3 +20,13 @@ export const SOFTWARE_TAGS = [
     'API Integration',
     'Workflow Automation'
 ];
+
+export const EXTENSION_MARKETPLACES = [
+    'Webflow',
+    'Shopify',
+    'Azure',
+    'AWS',
+    'Google Cloud',
+    'WooComerce',
+    'Custom Software',
+];

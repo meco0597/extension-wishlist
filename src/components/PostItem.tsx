@@ -86,13 +86,13 @@ export default function PostItem({ post, showFullContent = false }: PostItemProp
                             Posted {formatDistanceToNow(new Date(post.createdAt))} ago
                         </p>
                     </div>
-                    <Badge variant="secondary">{post.source}</Badge>
+                    <Badge variant="secondary">{post.platform}</Badge>
                 </div>
-                {post.tags && post.tags.length > 0 && (
+                {post.categories && post.categories.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
-                        {post.tags.map((tag) => (
-                            <Badge key={tag} variant="outline">
-                                {tag}
+                        {post.categories.map((category) => (
+                            <Badge key={category} variant="outline">
+                                {category}
                             </Badge>
                         ))}
                     </div>

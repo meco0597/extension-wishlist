@@ -4,8 +4,8 @@ export interface Post {
     description: string;
     votes: number;
     userId: string;
-    source: string;
-    tags: string[];
+    platform: string;
+    categories: string[];
     hasVoted?: boolean;
     createdAt: string;
 }

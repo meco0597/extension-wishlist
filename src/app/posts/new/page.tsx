@@ -10,21 +10,20 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import SourceSelect from '@/components/SourceSelect';
-import TagSelect from '@/components/TagSelect';
+import PlatformSelect from '@/components/PlatformSelect';
+import CategorySelect from '@/components/CategorySelect';
 
 export default function NewPost() {
     const router = useRouter();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [source, setSource] = useState('');
-    const [tags, setTags] = useState<string[]>([]);
+    const [platform, setPlatform] = useState('');
+    const [categories, setCategories] = useState<string[]>([]);
     const { toast } = useToast();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const user = auth.currentUser;
-
         if (!user) {
             toast({
                 title: "Authentication required",
@@ -33,8 +32,7 @@ export default function NewPost() {
             });
             return;
         }
-
-        if (!title || !description || !source) {
+        if (!title || !description || !platform) {
             toast({
                 title: "Validation Error",
                 description: "Please fill in all required fields.",
@@ -42,13 +40,20 @@ export default function NewPost() {
             });
             return;
         }
-
+        if (title.length > 200 || description.length > 1000) {
+            toast({
+                title: "Validation Error",
+                description: "Exceeded character limit.",
+                variant: "destructive",
+            });
+            return;
+        }
         try {
             const newPost: Omit<Post, 'id'> = {
                 title,
                 description,
-                source,
-                tags,
+                platform,
+                categories,
                 votes: 0,
                 userId: user.uid,
                 createdAt: new Date().toISOString(),
@@ -113,17 +118,17 @@ export default function NewPost() {
                     </div>
 
                     <div className="space-y-2">
-                        <label htmlFor="source" className="text-sm font-medium text-gray-700">
-                            Source
+                        <label htmlFor="platform" className="text-sm font-medium text-gray-700">
+                            Platform
                         </label>
-                        <SourceSelect value={source} onValueChange={setSource} />
+                        <PlatformSelect value={platform} onValueChange={setPlatform} />
                     </div>
 
                     <div className="space-y-2">
-                        <label htmlFor="tags" className="text-sm font-medium text-gray-700">
-                            Tags
+                        <label htmlFor="categories" className="text-sm font-medium text-gray-700">
+                            Categories
                         </label>
-                        <TagSelect selectedTags={tags} onTagsChange={setTags} />
+                        <CategorySelect selectedCategories={categories} onCategoriesChange={setCategories} />
                     </div>
 
                     <div className="flex justify-end gap-2">
